@@ -33,7 +33,16 @@ contract PayrollInterface {
        employees[accountAddress].yearlyEURSalary = initialYearlyEURSalary;
    }
 
-   function setEmployeeSalary(uint256 employeeId, uint256 yearlyEURSalary);
+   function setEmployeeSalary(
+       address accountAddress,
+       uint256 yearlyEURSalary
+   ) 
+       public
+       onlyOwner
+   {
+       employees[accountAddress].yearlyEURSalary = yearlyEURSalary;
+   }
+
    function removeEmployee(uint256 employeeId);
  
    function addFunds() payable;
