@@ -15,11 +15,21 @@ contract PayrollInterface {
    }
 
    struct Employee {
+        bool isEmployee;
         address[] allowedTokens;
         uint256 yearlyEURSalary;
    }
 
    mapping(address => Employee) private employees;
+   uint256 employeeCount;
+
+   function isEmployee(address employeeAddress) public view returns (bool) {
+       return employees[employeeAddress].isEmployee;
+   }
+
+   function getEmployeeCount() public view returns (uint256) {
+       return employeeCount;
+   }
 
    function addEmployee(
        address accountAddress,
@@ -29,8 +39,16 @@ contract PayrollInterface {
        public
        onlyOwner
    {
+       require(!employees[accountAddress].isEmployee);
        employees[accountAddress].allowedTokens = allowedTokens;
        employees[accountAddress].yearlyEURSalary = initialYearlyEURSalary;
+       employees[accountAddress].isEmployee = true;
+       employeeCount++;
+   }
+
+   function removeEmployee(address accountAddress) public onlyOwner {
+       delete employees[accountAddress];
+       employeeCount--;
    }
 
    function setEmployeeSalary(
@@ -43,10 +61,6 @@ contract PayrollInterface {
        employees[accountAddress].yearlyEURSalary = yearlyEURSalary;
    }
 
-   function removeEmployee(address accountAddress) public onlyOwner {
-       delete employees[accountAddress];
-   }
-
    uint256 private funds;
 
    function addFunds() payable public {
@@ -57,8 +71,7 @@ contract PayrollInterface {
 
    function scapeHatch();
    // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
- 
-   function getEmployeeCount() constant returns (uint256);
+
    function getEmployee(uint256 employeeId) constant returns (address employee); // Return all important info too
  
    function calculatePayrollBurnrate() constant returns (uint256); // Monthly EUR amount spent in salaries
