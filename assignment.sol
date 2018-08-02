@@ -43,7 +43,9 @@ contract PayrollInterface {
        employees[accountAddress].yearlyEURSalary = yearlyEURSalary;
    }
 
-   function removeEmployee(uint256 employeeId);
+   function removeEmployee(address accountAddress) public onlyOwner {
+       delete employees[accountAddress];
+   }
  
    function addFunds() payable;
    function scapeHatch();
