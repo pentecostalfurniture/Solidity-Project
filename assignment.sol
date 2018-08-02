@@ -46,8 +46,15 @@ contract PayrollInterface {
    function removeEmployee(address accountAddress) public onlyOwner {
        delete employees[accountAddress];
    }
- 
-   function addFunds() payable;
+
+   uint256 private funds;
+
+   function addFunds() payable public {
+       // Prevent possible overflow
+       require((funds + msg.value) >= funds);
+       funds += msg.value;
+   }
+
    function scapeHatch();
    // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
  
