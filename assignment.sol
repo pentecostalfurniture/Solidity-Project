@@ -5,7 +5,7 @@ contract PayrollInterface {
    /* OWNER ONLY */
    address private owner;
 
-   modifier ownerFunc() {
+   modifier onlyOwner() {
        require(owner == msg.sender);
        _;
    }
@@ -14,7 +14,25 @@ contract PayrollInterface {
        owner = msg.sender;
    }
 
-   function addEmployee(address accountAddress, address[] allowedTokens, uint256 initialYearlyEURSalary);
+   struct Employee {
+        address[] allowedTokens;
+        uint256 yearlyEURSalary;
+   }
+
+   mapping(address => Employee) private employees;
+
+   function addEmployee(
+       address accountAddress,
+       address[] allowedTokens,
+       uint256 initialYearlyEURSalary
+   )
+       public
+       onlyOwner
+   {
+       employees[accountAddress].allowedTokens = allowedTokens;
+       employees[accountAddress].yearlyEURSalary = initialYearlyEURSalary;
+   }
+
    function setEmployeeSalary(uint256 employeeId, uint256 yearlyEURSalary);
    function removeEmployee(uint256 employeeId);
  
