@@ -14,10 +14,17 @@ contract PayrollInterface {
        owner = msg.sender;
    }
 
+   function ()payable public {
+   }
+
+   function getBalance() public view onlyOwner returns (uint256) {
+       return address(this).balance;
+   }
+
    struct Employee {
         bool isEmployee;
         address[] allowedTokens;
-        uint256 yearlyEURSalary;
+        uint256 monthlyEURSalary;
    }
 
    mapping(address => Employee) private employees;
@@ -34,14 +41,14 @@ contract PayrollInterface {
    function addEmployee(
        address accountAddress,
        address[] allowedTokens,
-       uint256 initialYearlyEURSalary
+       uint256 initialMonthlyEURSalary
    )
        public
        onlyOwner
    {
        require(!employees[accountAddress].isEmployee);
        employees[accountAddress].allowedTokens = allowedTokens;
-       employees[accountAddress].yearlyEURSalary = initialYearlyEURSalary;
+       employees[accountAddress].monthlyEURSalary = initialMonthlyEURSalary;
        employees[accountAddress].isEmployee = true;
        employeeCount++;
    }
@@ -53,20 +60,12 @@ contract PayrollInterface {
 
    function setEmployeeSalary(
        address accountAddress,
-       uint256 yearlyEURSalary
+       uint256 monthlyEURSalary
    ) 
        public
        onlyOwner
    {
-       employees[accountAddress].yearlyEURSalary = yearlyEURSalary;
-   }
-
-   uint256 private funds;
-
-   function addFunds() payable public {
-       // Prevent possible overflow
-       require((funds + msg.value) >= funds);
-       funds += msg.value;
+       employees[accountAddress].monthlyEURSalary = monthlyEURSalary;
    }
 
    function scapeHatch();
@@ -83,7 +82,7 @@ contract PayrollInterface {
                 uint256) {
        return (employees[accountAddress].isEmployee,
                employees[accountAddress].allowedTokens,
-               employees[accountAddress].yearlyEURSalary);
+               employees[accountAddress].monthlyEURSalary);
    }
 
    function calculatePayrollBurnrate() constant returns (uint256); // Monthly EUR amount spent in salaries
@@ -91,7 +90,11 @@ contract PayrollInterface {
  
    /* EMPLOYEE ONLY */
    function determineAllocation(address[] tokens, uint256[] distribution); // only callable once every 6 months
-   function payday(); // only callable once a month
+   function payEmployee(address accountAddress) public onlyOwner {
+        // TODO: make this callable only once a month for each employee
+        require(employees[accountAddress].isEmployee);
+        accountAddress.transfer(employees[accountAddress].monthlyEURSalary);
+   }
  
    /* ORACLE ONLY */
    function setExchangeRate(address token, uint256 EURExchangeRate); // uses decimals from token
