@@ -72,8 +72,20 @@ contract PayrollInterface {
    function scapeHatch();
    // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
 
-   function getEmployee(uint256 employeeId) constant returns (address employee); // Return all important info too
- 
+   function getEmployeeInfo(
+       address accountAddress
+   )
+       public
+       onlyOwner
+       view
+       returns (bool,
+                address[],
+                uint256) {
+       return (employees[accountAddress].isEmployee,
+               employees[accountAddress].allowedTokens,
+               employees[accountAddress].yearlyEURSalary);
+   }
+
    function calculatePayrollBurnrate() constant returns (uint256); // Monthly EUR amount spent in salaries
    function calculatePayrollRunway() constant returns (uint256); // Days until the contract can run out of funds
  
