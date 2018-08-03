@@ -1,8 +1,8 @@
 pragma solidity ^0.4.7;
 // For the sake of simplicity lets assume EUR is a ERC20 token
 // Also lets assume we can 100% trust the exchange rate oracle
-contract PayrollInterface {
-   /* OWNER ONLY */
+contract Fund {
+    /* OWNER ONLY */
    address private owner;
 
    modifier onlyOwner() {
@@ -20,7 +20,9 @@ contract PayrollInterface {
    function getBalance() public view onlyOwner returns (uint256) {
        return address(this).balance;
    }
+}
 
+contract Payroll is Fund {
    struct Employee {
         bool isEmployee;
         address[] allowedTokens;
