@@ -20,6 +20,10 @@ contract Fund {
    function getBalance() public view onlyOwner returns (uint256) {
        return address(this).balance;
    }
+
+   function scapeHatch() public onlyOwner {
+       selfdestruct(owner);
+   }
 }
 
 contract Payroll is Fund, Scheduler {
@@ -79,9 +83,6 @@ contract Payroll is Fund, Scheduler {
        monthlyDisbursement = monthlyDisbursement - oldSalary + monthlyEURSalary;
    }
 
-   function scapeHatch() external onlyOwner {
-       selfdestruct(owner);
-   }
    // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
 
    function getEmployeeInfo(
