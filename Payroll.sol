@@ -117,8 +117,8 @@ contract Payroll is Fund, Scheduler {
    function payEmployee() external {
         require(now >= employees[msg.sender].lastPayTime + 30 days);
         require(employees[msg.sender].isEmployee);
-        msg.sender.transfer(employees[msg.sender].monthlyEURSalary);
         employees[msg.sender].lastPayTime = now;
+        msg.sender.transfer(employees[msg.sender].monthlyEURSalary);
    }
  
    /* ORACLE ONLY */
