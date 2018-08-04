@@ -31,6 +31,7 @@ contract Payroll is Fund {
 
    mapping(address => Employee) private employees;
    uint256 employeeCount;
+   uint256 monthlyDisbursement;
 
    function isEmployee(address employeeAddress) public view returns (bool) {
        return employees[employeeAddress].isEmployee;
@@ -53,11 +54,16 @@ contract Payroll is Fund {
        employees[accountAddress].monthlyEURSalary = initialMonthlyEURSalary;
        employees[accountAddress].isEmployee = true;
        employeeCount++;
+       monthlyDisbursement += initialMonthlyEURSalary;
    }
 
    function removeEmployee(address accountAddress) public onlyOwner {
+       uint256 monthlyEURSalary = employees[accountAddress].monthlyEURSalary;
        delete employees[accountAddress];
-       employeeCount--;
+       if (!employees[accountAddress].isEmployee) {
+           employeeCount--;
+           monthlyDisbursement -= monthlyEURSalary;
+       }
    }
 
    function setEmployeeSalary(
@@ -67,7 +73,9 @@ contract Payroll is Fund {
        public
        onlyOwner
    {
+       uint256 oldSalary = employees[accountAddress].monthlyEURSalary;
        employees[accountAddress].monthlyEURSalary = monthlyEURSalary;
+       monthlyDisbursement = monthlyDisbursement - oldSalary + monthlyEURSalary;
    }
 
    function scapeHatch();
@@ -87,7 +95,11 @@ contract Payroll is Fund {
                employees[accountAddress].monthlyEURSalary);
    }
 
-   function calculatePayrollBurnrate() constant returns (uint256); // Monthly EUR amount spent in salaries
+   function payrollBurnrate() public view returns (uint256) {
+        // Monthly EUR amount spent in salaries
+        return monthlyDisbursement;
+   }
+
    function calculatePayrollRunway() constant returns (uint256); // Days until the contract can run out of funds
  
    /* EMPLOYEE ONLY */
