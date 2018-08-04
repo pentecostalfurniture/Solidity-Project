@@ -3,7 +3,7 @@ import "./Scheduler.sol";
 // For the sake of simplicity lets assume EUR is a ERC20 token
 // Also lets assume we can 100% trust the exchange rate oracle
 contract Fund {
-   address private owner;
+   address internal owner;
 
    modifier onlyOwner() {
        require(owner == msg.sender);
@@ -27,6 +27,7 @@ contract Payroll is Fund, Scheduler {
         bool isEmployee;
         address[] allowedTokens;
         uint256 monthlyEURSalary;
+        uint256 lastPayTime;
    }
 
    mapping(address => Employee) private employees;
@@ -85,14 +86,16 @@ contract Payroll is Fund, Scheduler {
        address accountAddress
    )
        public
-       onlyOwner
        view
        returns (bool,
                 address[],
+                uint256,
                 uint256) {
+       require(owner == msg.sender || accountAddress == msg.sender);
        return (employees[accountAddress].isEmployee,
                employees[accountAddress].allowedTokens,
-               employees[accountAddress].monthlyEURSalary);
+               employees[accountAddress].monthlyEURSalary,
+               employees[accountAddress].lastPayTime);
    }
 
    function payrollBurnrate() public view returns (uint256) {
@@ -109,10 +112,11 @@ contract Payroll is Fund, Scheduler {
    }
    /* EMPLOYEE ONLY */
    function determineAllocation(address[] tokens, uint256[] distribution); // only callable once every 6 months
-   function payEmployee(address accountAddress) public onlyOwner {
-        // TODO: make this callable only once a month for each employee
-        require(employees[accountAddress].isEmployee);
-        accountAddress.transfer(employees[accountAddress].monthlyEURSalary);
+   function payEmployee() public {
+        require(now >= employees[msg.sender].lastPayTime + 30 days);
+        require(employees[msg.sender].isEmployee);
+        msg.sender.transfer(employees[msg.sender].monthlyEURSalary);
+        employees[msg.sender].lastPayTime = now;
    }
  
    /* ORACLE ONLY */
