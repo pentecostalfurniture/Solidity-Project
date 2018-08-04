@@ -34,11 +34,11 @@ contract Payroll is Fund, Scheduler {
    uint256 employeeCount;
    uint256 monthlyDisbursement;
 
-   function isEmployee(address employeeAddress) public view returns (bool) {
+   function isEmployee(address employeeAddress) external view returns (bool) {
        return employees[employeeAddress].isEmployee;
    }
 
-   function getEmployeeCount() public view returns (uint256) {
+   function getEmployeeCount() external view returns (uint256) {
        return employeeCount;
    }
 
@@ -47,7 +47,7 @@ contract Payroll is Fund, Scheduler {
        address[] allowedTokens,
        uint256 initialMonthlyEURSalary
    )
-       public
+       external
        onlyOwner
    {
        require(!employees[accountAddress].isEmployee);
@@ -58,7 +58,7 @@ contract Payroll is Fund, Scheduler {
        monthlyDisbursement += initialMonthlyEURSalary;
    }
 
-   function removeEmployee(address accountAddress) public onlyOwner {
+   function removeEmployee(address accountAddress) external onlyOwner {
        uint256 monthlyEURSalary = employees[accountAddress].monthlyEURSalary;
        delete employees[accountAddress];
        if (!employees[accountAddress].isEmployee) {
@@ -71,7 +71,7 @@ contract Payroll is Fund, Scheduler {
        address accountAddress,
        uint256 monthlyEURSalary
    ) 
-       public
+       external
        onlyOwner
    {
        uint256 oldSalary = employees[accountAddress].monthlyEURSalary;
@@ -79,7 +79,7 @@ contract Payroll is Fund, Scheduler {
        monthlyDisbursement = monthlyDisbursement - oldSalary + monthlyEURSalary;
    }
 
-   function scapeHatch() public onlyOwner {
+   function scapeHatch() external onlyOwner {
        selfdestruct(owner);
    }
    // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
@@ -87,7 +87,7 @@ contract Payroll is Fund, Scheduler {
    function getEmployeeInfo(
        address accountAddress
    )
-       public
+       external
        view
        returns (bool,
                 address[],
@@ -100,12 +100,12 @@ contract Payroll is Fund, Scheduler {
                employees[accountAddress].lastPayTime);
    }
 
-   function payrollBurnrate() public view returns (uint256) {
+   function payrollBurnrate() external view returns (uint256) {
        // Monthly EUR amount spent in salaries
         return monthlyDisbursement;
    }
 
-   function calculatePayrollRunway() public view returns (uint256) {
+   function calculatePayrollRunway() external view returns (uint256) {
        // Days until the contract can run out of funds
        require(getBalance() > 0);
        require(monthlyDisbursement > 0);
@@ -114,7 +114,7 @@ contract Payroll is Fund, Scheduler {
    }
    /* EMPLOYEE ONLY */
    function determineAllocation(address[] tokens, uint256[] distribution); // only callable once every 6 months
-   function payEmployee() public {
+   function payEmployee() external {
         require(now >= employees[msg.sender].lastPayTime + 30 days);
         require(employees[msg.sender].isEmployee);
         msg.sender.transfer(employees[msg.sender].monthlyEURSalary);
