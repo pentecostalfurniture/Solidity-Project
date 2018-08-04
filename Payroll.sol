@@ -3,7 +3,6 @@ import "./Scheduler.sol";
 // For the sake of simplicity lets assume EUR is a ERC20 token
 // Also lets assume we can 100% trust the exchange rate oracle
 contract Fund {
-    /* OWNER ONLY */
    address private owner;
 
    modifier onlyOwner() {
