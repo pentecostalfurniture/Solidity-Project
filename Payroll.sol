@@ -79,7 +79,9 @@ contract Payroll is Fund, Scheduler {
        monthlyDisbursement = monthlyDisbursement - oldSalary + monthlyEURSalary;
    }
 
-   function scapeHatch();
+   function scapeHatch() public onlyOwner {
+       selfdestruct(owner);
+   }
    // function addTokenFunds()? // Use approveAndCall or ERC223 tokenFallback
 
    function getEmployeeInfo(
