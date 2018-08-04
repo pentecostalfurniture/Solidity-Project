@@ -54,18 +54,20 @@ contract Payroll is Fund, Scheduler {
        external
        onlyOwner
    {
-       require(!employees[accountAddress].isEmployee);
-       employees[accountAddress].allowedTokens = allowedTokens;
-       employees[accountAddress].monthlyEURSalary = initialMonthlyEURSalary;
-       employees[accountAddress].isEmployee = true;
+       Employee storage employeeEntry = employees[accountAddress];
+       require(!employeeEntry.isEmployee);
+       employeeEntry.allowedTokens = allowedTokens;
+       employeeEntry.monthlyEURSalary = initialMonthlyEURSalary;
+       employeeEntry.isEmployee = true;
        employeeCount++;
        monthlyDisbursement += initialMonthlyEURSalary;
    }
 
    function removeEmployee(address accountAddress) external onlyOwner {
-       uint256 monthlyEURSalary = employees[accountAddress].monthlyEURSalary;
+       Employee storage employeeEntry = employees[accountAddress];
+       uint256 monthlyEURSalary = employeeEntry.monthlyEURSalary;
        delete employees[accountAddress];
-       if (!employees[accountAddress].isEmployee) {
+       if (!employeeEntry.isEmployee) {
            employeeCount--;
            monthlyDisbursement -= monthlyEURSalary;
        }
@@ -78,8 +80,9 @@ contract Payroll is Fund, Scheduler {
        external
        onlyOwner
    {
-       uint256 oldSalary = employees[accountAddress].monthlyEURSalary;
-       employees[accountAddress].monthlyEURSalary = monthlyEURSalary;
+       Employee storage employeeEntry = employees[accountAddress];
+       uint256 oldSalary = employeeEntry.monthlyEURSalary;
+       employeeEntry.monthlyEURSalary = monthlyEURSalary;
        monthlyDisbursement = monthlyDisbursement - oldSalary + monthlyEURSalary;
    }
 
@@ -95,10 +98,11 @@ contract Payroll is Fund, Scheduler {
                 uint256,
                 uint256) {
        require(owner == msg.sender || accountAddress == msg.sender);
-       return (employees[accountAddress].isEmployee,
-               employees[accountAddress].allowedTokens,
-               employees[accountAddress].monthlyEURSalary,
-               employees[accountAddress].lastPayTime);
+       Employee storage employeeEntry = employees[accountAddress];
+       return (employeeEntry.isEmployee,
+               employeeEntry.allowedTokens,
+               employeeEntry.monthlyEURSalary,
+               employeeEntry.lastPayTime);
    }
 
    function payrollBurnrate() external view returns (uint256) {
@@ -116,10 +120,11 @@ contract Payroll is Fund, Scheduler {
    /* EMPLOYEE ONLY */
    function determineAllocation(address[] tokens, uint256[] distribution); // only callable once every 6 months
    function payEmployee() external {
-        require(now >= employees[msg.sender].lastPayTime + 30 days);
-        require(employees[msg.sender].isEmployee);
-        employees[msg.sender].lastPayTime = now;
-        msg.sender.transfer(employees[msg.sender].monthlyEURSalary);
+        Employee storage employeeEntry = employees[msg.sender];
+        require(now >= employeeEntry.lastPayTime + 30 days);
+        require(employeeEntry.isEmployee);
+        employeeEntry.lastPayTime = now;
+        msg.sender.transfer(employeeEntry.monthlyEURSalary);
    }
  
    /* ORACLE ONLY */
