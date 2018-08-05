@@ -117,7 +117,7 @@ contract Payroll is Fund, Scheduler {
        return daysUntilNextMonth() + monthsToDays(numberofWholeMonths);
    }
    /* EMPLOYEE ONLY */
-   function determineAllocation(address[] tokens, uint256[] distribution); // only callable once every 6 months
+   // function determineAllocation(address[] tokens, uint256[] distribution); // only callable once every 6 months
    function payEmployee() external {
         Employee storage employeeEntry = employees[msg.sender];
         require(employeeEntry.isEmployee && now >= employeeEntry.lastPayTime + 30 days);
@@ -126,5 +126,5 @@ contract Payroll is Fund, Scheduler {
    }
  
    /* ORACLE ONLY */
-   function setExchangeRate(address token, uint256 EURExchangeRate); // uses decimals from token
+   // function setExchangeRate(address token, uint256 EURExchangeRate); // uses decimals from token
 }
