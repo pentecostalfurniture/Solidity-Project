@@ -35,15 +35,11 @@ contract Payroll is Fund, Scheduler {
    }
 
    mapping(address => Employee) private employees;
-   uint256 employeeCount;
+   uint256 public employeeCount;
    uint256 monthlyDisbursement;
 
    function isEmployee(address employeeAddress) external view returns (bool) {
        return employees[employeeAddress].isEmployee;
-   }
-
-   function getEmployeeCount() external view returns (uint256) {
-       return employeeCount;
    }
 
    function addEmployee(

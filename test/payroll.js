@@ -7,7 +7,7 @@ contract('Payroll', function(accounts) {
       pay = instance;
       return instance.addEmployee(accounts[1], [], 12, {from: accounts[0]});
     }).then(function() {
-      return pay.getEmployeeCount.call();
+      return pay.employeeCount.call();
     }).then(function(employeeCount) {
       assert.equal(employeeCount.toNumber(), 1, "Employee count should be 1");
     });
