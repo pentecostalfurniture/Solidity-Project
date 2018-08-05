@@ -112,8 +112,7 @@ contract Payroll is Fund, Scheduler {
 
    function calculatePayrollRunway() external view returns (uint256) {
        // Days until the contract can run out of funds
-       require(getBalance() > 0);
-       require(monthlyDisbursement > 0);
+       require(getBalance() > 0 && monthlyDisbursement > 0);
        uint256 numberofWholeMonths = getBalance() / monthlyDisbursement;
        return daysUntilNextMonth() + monthsToDays(numberofWholeMonths);
    }
@@ -121,8 +120,7 @@ contract Payroll is Fund, Scheduler {
    function determineAllocation(address[] tokens, uint256[] distribution); // only callable once every 6 months
    function payEmployee() external {
         Employee storage employeeEntry = employees[msg.sender];
-        require(now >= employeeEntry.lastPayTime + 30 days);
-        require(employeeEntry.isEmployee);
+        require(employeeEntry.isEmployee && now >= employeeEntry.lastPayTime + 30 days);
         employeeEntry.lastPayTime = now;
         msg.sender.transfer(employeeEntry.monthlyEURSalary);
    }
