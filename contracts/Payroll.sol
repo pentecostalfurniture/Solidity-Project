@@ -1,5 +1,5 @@
 pragma solidity ^0.4.7;
-import "./Scheduler.sol";
+import "./DateTime.sol";
 // For the sake of simplicity lets assume EUR is a ERC20 token
 // Also lets assume we can 100% trust the exchange rate oracle
 contract Fund {
@@ -26,7 +26,7 @@ contract Fund {
    }
 }
 
-contract Payroll is Fund, Scheduler {
+contract Payroll is Fund {
    struct Employee {
         bool isEmployee;
         address[] allowedTokens;
@@ -101,11 +101,24 @@ contract Payroll is Fund, Scheduler {
                employeeEntry.lastPayTime);
    }
 
-   function calculatePayrollRunway() external view returns (uint256) {
+   function calculatePayrollRunway() external returns (uint256) {
        // Days until the contract can run out of funds
-       require(getBalance() > 0 && monthlyDisbursement > 0);
-       uint256 numberofWholeMonths = getBalance() / monthlyDisbursement;
-       return daysUntilNextMonth() + monthsToDays(numberofWholeMonths);
+       uint256 balance = getBalance();
+       require(balance > 0 && monthlyDisbursement > 0);
+       uint8 numberofWholeMonths = uint8(balance / monthlyDisbursement);
+
+       uint256 currentTime = now;
+       DateTime dateTime = new DateTime();
+       uint16 currentYear = dateTime.getYear(currentTime);
+       uint8 currentMonth = dateTime.getMonth(currentTime);
+
+       uint256 runwayInSeconds = dateTime.toTimestamp(
+            currentYear,
+            currentMonth + numberofWholeMonths,
+            1
+        ) - currentTime;
+
+       return runwayInSeconds / 1 days;
    }
    /* EMPLOYEE ONLY */
    // function determineAllocation(address[] tokens, uint256[] distribution); // only callable once every 6 months
