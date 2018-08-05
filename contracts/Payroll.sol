@@ -36,7 +36,7 @@ contract Payroll is Fund, Scheduler {
 
    mapping(address => Employee) private employees;
    uint256 public employeeCount;
-   uint256 monthlyDisbursement;
+   uint256 public monthlyDisbursement; // Monthly EUR amount spent in salaries
 
    function isEmployee(address employeeAddress) external view returns (bool) {
        return employees[employeeAddress].isEmployee;
@@ -99,11 +99,6 @@ contract Payroll is Fund, Scheduler {
                employeeEntry.allowedTokens,
                employeeEntry.monthlyEURSalary,
                employeeEntry.lastPayTime);
-   }
-
-   function payrollBurnrate() external view returns (uint256) {
-       // Monthly EUR amount spent in salaries
-        return monthlyDisbursement;
    }
 
    function calculatePayrollRunway() external view returns (uint256) {
