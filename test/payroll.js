@@ -5,7 +5,7 @@ contract('Payroll', function(accounts) {
   it("should have one employee after adding one employee", function() {
     return Payroll.deployed().then(function(instance) {
       pay = instance;
-      return instance.addEmployee(accounts[1], [], 12, {from: accounts[0]});
+      return instance.addEmployee(accounts[1], [accounts[2]], [100], 12, {from: accounts[0]});
     }).then(function() {
       return pay.employeeCount.call();
     }).then(function(employeeCount) {
