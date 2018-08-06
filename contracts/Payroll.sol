@@ -1,5 +1,6 @@
 pragma solidity ^0.4.7;
 import "./ScheduleHelper.sol";
+import "./eip20/EIP20.sol";
 // For the sake of simplicity lets assume EUR is a ERC20 token
 // Also lets assume we can 100% trust the exchange rate oracle
 contract Fund {
@@ -37,6 +38,7 @@ contract Payroll is Fund {
    }
 
    mapping(address => Employee) private employees;
+   mapping(address => uint256) public tokenRates;
    uint256 public employeeCount;
    uint256 public monthlyDisbursement; // Monthly EUR amount spent in salaries
 
@@ -163,10 +165,21 @@ contract Payroll is Fund {
    }
 
    function payEmployee() external {
-        Employee storage employeeEntry = employees[msg.sender];
-        require(employeeEntry.isEmployee && now >= employeeEntry.lastPayTime + 30 days);
-        employeeEntry.lastPayTime = now;
-        msg.sender.transfer(employeeEntry.monthlyEURSalary);
+       Employee storage employeeEntry = employees[msg.sender];
+       ScheduleHelper schedule = new ScheduleHelper();
+       uint256 currentTime = now;
+       require(employeeEntry.isEmployee && currentTime >= schedule.incrementMonths(1, employeeEntry.lastPayTime));
+
+       for (uint i = 0; i < employeeEntry.allowedTokens.length; i++) {
+            address token = employeeEntry.allowedTokens[i];
+
+            uint256 monthlyTokenPayEUR = employeeEntry.monthlyEURSalary * employeeEntry.tokenDistribution[i] / 100;
+            uint256 monthlyTokenPay = monthlyTokenPayEUR / tokenRates[token];
+
+            require(EIP20(token).transfer(msg.sender, monthlyTokenPay));
+        }
+
+       employeeEntry.lastPayTime = now;
    }
  
    /* ORACLE ONLY */
