@@ -1,6 +1,12 @@
 # Solidity-Project
 Smart contract implementation of a generic payroll.
 
+# To-dos
+
+- Configure oracle and tokenRates
+- Add more tests
+- Use a package manager like [ethpm-spec](https://github.com/ethpm/ethpm-spec)
+
 ## Tests
 Install [Truffle](https://truffleframework.com):
 
